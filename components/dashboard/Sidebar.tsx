@@ -1,10 +1,9 @@
-import { startLoading, stopLoading } from "@/redux/slices/loadingSlice";
-import { AppDispatch } from "@/redux/store";
 import { NavItemProps, SidebarProps } from "@/types/Types";
-import { useRouter } from "next/navigation";
 import React, { useMemo } from "react";
-import { HiCheck, HiHome, HiUser } from "react-icons/hi";
-import { useDispatch } from "react-redux";
+import { HiHome } from "react-icons/hi";
+import LogoutButton from "../ui/LogoutButton";
+import { LiaClipboardListSolid } from "react-icons/lia";
+import { RiUser3Fill } from "react-icons/ri";
 
 const NavItem: React.FC<NavItemProps> = ({
   icon,
@@ -14,13 +13,13 @@ const NavItem: React.FC<NavItemProps> = ({
 }) => (
   <div
     onClick={onClick}
-    className={`flex items-center p-3 cursor-pointer rounded-lg text-sm font-medium transition-all duration-300 ease-in-out ${
+    className={`flex items-center p-3 cursor-pointer rounded-lg text-md font-medium transition-all duration-300 ease-in-out ${
       isActive
         ? "bg-linear-to-r from-[#1b3270] to-transparent text-white shadow-lg"
-        : "text-gray-300 hover:bg-linear-to-r from-[#1b3270] to-transparent hover:text-white"
+        : "text-[#8CA3CD] hover:bg-linear-to-r from-[#1b3270] to-transparent hover:text-white"
     }`}
   >
-    <span className="w-5 h-5 flex items-center justify-center mr-3 text-lg">
+    <span className="w-10 h-10 flex items-center justify-center mr-3 text-xl">
       {icon}
     </span>
     {title}
@@ -28,41 +27,26 @@ const NavItem: React.FC<NavItemProps> = ({
 );
 
 const Sidebar: React.FC<SidebarProps> = ({ activeMenu, setActiveMenu }) => {
-  const router = useRouter();
-  const dispatch = useDispatch<AppDispatch>();
-
   const navItems = useMemo(
     () => [
       {
         title: "Dashboard",
-        icon: <HiHome size={20} />,
+        icon: <HiHome />,
         key: "dashboard",
       },
       {
         title: "Todos",
-        icon: <HiCheck size={20} />,
+        icon: <LiaClipboardListSolid />,
         key: "todos",
       },
       {
         title: "Account Information",
-        icon: <HiUser size={20} />,
+        icon: <RiUser3Fill />,
         key: "account",
       },
     ],
     []
   );
-
-  const handleLogout = () => {
-    dispatch(startLoading("Logging out..."));
-
-    localStorage.removeItem("authToken");
-    sessionStorage.removeItem("authToken");
-
-    setTimeout(() => {
-      dispatch(stopLoading());
-      router.replace("/login");
-    }, 500);
-  };
 
   return (
     <div className="bg-[#0D224A] text-white w-full h-full p-6 flex flex-col justify-between">
@@ -93,14 +77,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeMenu, setActiveMenu }) => {
         </nav>
       </div>
 
-      <div className="border-t border-gray-700 pt-4">
-        <div className="flex items-center p-3 cursor-pointer rounded-lg text-sm font-medium text-gray-300 hover:bg-red-800 hover:text-white transition-all duration-300 ease-in-out">
-          <span className="w-5 h-5 flex items-center justify-center mr-3 text-lg">
-            <HiUser size={20} />
-          </span>
-          Logout
-        </div>
-      </div>
+      <LogoutButton />
     </div>
   );
 };
