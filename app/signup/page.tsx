@@ -77,6 +77,7 @@ export default function SignupPage() {
           src="/images/auth/signup.svg"
           alt="Signup"
           fill
+          priority
           className="object-cover object-center"
         />
       </div>

@@ -111,6 +111,6 @@ export interface UserProfile {
   address: string;
   contact_number: string;
   birthday: string | null ;
-  profile_image: string | null;
+  profile_image: string | null | File;
   bio?: string;
 }

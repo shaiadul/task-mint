@@ -58,7 +58,11 @@ const Sidebar: React.FC<SidebarProps> = ({
     <div className="fixed top-0 left-0 bg-[#0D224A] text-white w-80 h-screen p-6 flex flex-col justify-between shadow-xl">
       <div>
         <ProfileAvatar
-          profile_image={values?.profile_image || ""}
+          profile_image={
+            values?.profile_image instanceof File
+              ? URL.createObjectURL(values.profile_image)
+              : values?.profile_image || ""
+          }
           first_name={values?.first_name}
           email={values?.email}
         />

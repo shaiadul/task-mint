@@ -86,6 +86,7 @@ export default function LoginPage() {
           src="/images/auth/login.svg"
           alt="Login"
           fill
+          priority
           className="object-cover object-center"
         />
       </div>
