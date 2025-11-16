@@ -63,7 +63,7 @@ export interface AccountValues {
 // Optional: reusable InputField props
 export interface InputFieldProps {
   label: string;
-  name: keyof AccountValues;
+  name: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   type?: string;
@@ -112,5 +112,5 @@ export interface UserProfile {
   contact_number: string;
   birthday: string | null ;
   profile_image: string | null;
-  bio: string;
+  bio?: string;
 }

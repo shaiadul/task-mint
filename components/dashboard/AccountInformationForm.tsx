@@ -26,8 +26,8 @@ export default function AccountInformationForm({
     setImageError("");
 
     // Preview image instantly
-    const url = URL.createObjectURL(file);
-    values.profile_image = url;
+    // const url = URL.createObjectURL(file);
+    // values.profile_image = url;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -109,7 +109,7 @@ export default function AccountInformationForm({
           label="Birthday"
           name="birthday"
           type="date"
-          value={values.birthday}
+          value={values.birthday || ""}
           onChange={handleChange}
         />
 
