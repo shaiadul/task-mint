@@ -72,6 +72,7 @@ export interface InputFieldProps {
 export interface SidebarProps {
   activeMenu: string;
   setActiveMenu: (menu: string) => void;
+  values: UserProfile;
 }
 
 export interface NavItemProps {
@@ -81,3 +82,35 @@ export interface NavItemProps {
   onClick: () => void;
 }
 
+export interface LayoutProps {
+  children: React.ReactNode;
+  activeMenu: string;
+  setActiveMenu: (menu: string) => void;
+  isSidebarOpen: boolean;
+  values: UserProfile;
+}
+
+export interface ProfileAvatarProps {
+  profile_image: string;
+  first_name: string;
+  email: string;
+}
+export interface ProfileImageUploadProps {
+  image: string | null;
+  onChange: (file: File) => void;
+  error?: string;
+  firstName?: string;
+  email?: string;
+}
+
+export interface UserProfile {
+  id?: number;
+  email: string;
+  first_name: string;
+  last_name: string;
+  address: string;
+  contact_number: string;
+  birthday: string | null ;
+  profile_image: string | null;
+  bio: string;
+}
