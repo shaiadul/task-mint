@@ -125,6 +125,7 @@ export interface Task {
   is_completed: boolean;
   position?: number;
   dueDate?: string;
+  todo_date?: string;
 }
 
 export interface FetchTasksResponse {
@@ -147,4 +148,5 @@ export interface TaskCardProps {
   onDelete: (id: number | string) => void;
   handleDragStart: (e: React.DragEvent<HTMLDivElement>, id: string) => void;
   handleDragOver: (e: React.DragEvent<HTMLDivElement>, id: string) => void;
+  onClick?: () => void;
 }

@@ -8,11 +8,14 @@ import TaskControls from "./TaskControls";
 import Image from "next/image";
 import { DeadlineOption } from "../ui/FilterDropdown";
 import { request } from "@/lib/api";
+import EditTaskModal from "./EditTaskModal";
 
 const Tasks: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedDeadlines, setSelectedDeadlines] = useState<DeadlineOption[]>(
     []
   );
@@ -32,7 +35,7 @@ const Tasks: React.FC = () => {
         priority: item.priority,
         is_completed: item.is_completed,
         order: item.position,
-        dueDate: item.dueDate,
+        todo_date: item.todo_date,
       }));
 
       setTasks(formatted);
@@ -49,20 +52,17 @@ const Tasks: React.FC = () => {
 
   const updateTasksOrder = async (newTasks: Task[]) => {
     try {
-      const payload = newTasks.map((task, index) => ({
-        id: task.id,
-        position: index,
-      }));
-
-      await request({
-        endpoint: "/todos/reorder/",
-        method: "POST",
-        data: { tasks: payload },
-      });
-
-      console.log("Order updated successfully");
+      for (let index = 0; index < newTasks.length; index++) {
+        const task = newTasks[index];
+        await request({
+          endpoint: `/todos/${task.id}/`,
+          method: "PATCH",
+          data: { position: index },
+        });
+      }
+      console.log("Task positions updated successfully");
     } catch (err) {
-      console.log("Failed to update task order", err);
+      console.error("Failed to update task order", err);
     }
   };
 
@@ -135,10 +135,10 @@ const Tasks: React.FC = () => {
         selectedDeadlines.length === 0
           ? true
           : selectedDeadlines.some((option) => {
-              if (!task.dueDate) return false;
+              if (!task.todo_date) return false;
 
               const now = new Date();
-              const due = new Date(task.dueDate);
+              const due = new Date(task.todo_date);
 
               switch (option) {
                 case "Deadline Today":
@@ -214,6 +214,10 @@ const Tasks: React.FC = () => {
             onDelete={deleteTask}
             handleDragStart={handleDragStart}
             handleDragOver={handleDragOver}
+            onClick={() => {
+              setEditingTask(task);
+              setIsEditModalOpen(true);
+            }}
           />
         ))}
       </div>
@@ -236,7 +240,17 @@ const Tasks: React.FC = () => {
         </div>
       </main>
 
-      <TaskModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <TaskModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onTaskCreated={fetchTasks}
+      />
+      <EditTaskModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onTaskCreated={fetchTasks}
+        task={editingTask || undefined}
+      />
     </main>
   );
 };

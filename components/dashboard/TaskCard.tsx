@@ -8,6 +8,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
   onDelete,
   handleDragStart,
   handleDragOver,
+  onClick,
 }) => {
   const getPriorityStyle = (priority: Priority) => {
     switch (priority) {
@@ -34,7 +35,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
   const priorityStyle = getPriorityStyle(task.priority);
   const priorityBorder = priorityBorders(task.priority);
 
-  console.log("task data: ", task);
+  // console.log("task data: ", task);
 
   return (
     <div
@@ -43,6 +44,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
       onDragStart={(e) => handleDragStart(e, String(task.id))}
       onDragOver={(e) => handleDragOver(e, String(task.id))}
       data-id={task.id}
+      onClick={onClick}
     >
       <div className="flex justify-between items-start space-x-4">
         <h3
@@ -71,7 +73,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
 
       <div className="mt-4 flex justify-between items-center text-md">
         <div className="flex items-center space-x-1 text-gray-500">
-          <span>Due {task.dueDate}</span>
+          <span>Due {task.todo_date}</span>
         </div>
         <div className="flex space-x-2">
           <button className="p-2 text-blue-500 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors cursor-pointer">

@@ -1,6 +1,6 @@
 "use client";
 
-import { Priority, TaskErrors, TaskModalProps } from "@/types/Types";
+import { Priority, Task, TaskErrors, TaskModalProps } from "@/types/Types";
 import { useEffect, useState } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
 import InputField from "../ui/InputField";
@@ -10,33 +10,36 @@ import { AppDispatch } from "@/redux/store";
 import { startLoading, stopLoading } from "@/redux/slices/loadingSlice";
 import { AnimatePresence, motion } from "framer-motion";
 
-export default function TaskModal({
+interface EditTaskModalProps extends TaskModalProps {
+  task?: Task;
+}
+
+export default function EditTaskModal({
   isOpen,
   onClose,
   onTaskCreated,
-}: TaskModalProps) {
+  task,
+}: EditTaskModalProps) {
   const dispatch = useDispatch<AppDispatch>();
 
   const [title, setTitle] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState<Priority>("moderate");
   const [description, setDescription] = useState("");
+  const [isCompleted, setIsCompleted] = useState(false);
 
-  const [errors, setErrors] = useState<{
-    title?: string;
-    dueDate?: string;
-    description?: string;
-  }>({});
+  const [errors, setErrors] = useState<TaskErrors>({});
 
   useEffect(() => {
-    if (isOpen) {
-      setTitle("");
-      setDueDate("");
-      setPriority("moderate");
-      setDescription("");
+    if (isOpen && task) {
+      setTitle(task.title || "");
+      setDueDate(task.todo_date || "");
+      setPriority(task.priority || "moderate");
+      setDescription(task.description || "");
+      setIsCompleted(task.is_completed || false);
       setErrors({});
     }
-  }, [isOpen]);
+  }, [isOpen, task]);
 
   if (!isOpen) return null;
 
@@ -53,9 +56,9 @@ export default function TaskModal({
   };
 
   const handleSave = async () => {
-    if (!validate()) return;
+    if (!validate() || !task) return;
 
-    dispatch(startLoading("Creating task..."));
+    dispatch(startLoading("Updating task..."));
 
     try {
       const body = {
@@ -63,11 +66,12 @@ export default function TaskModal({
         description,
         priority: priority.toLowerCase(),
         todo_date: dueDate,
+        is_completed: isCompleted,
       };
 
       await request({
-        endpoint: "/todos/",
-        method: "POST",
+        endpoint: `/todos/${task.id}/`,
+        method: "PATCH",
         data: body,
       });
 
@@ -77,7 +81,7 @@ export default function TaskModal({
       const error = err as ApiError;
 
       if (error.field) {
-        setErrors((prev: TaskErrors) => ({
+        setErrors((prev) => ({
           ...prev,
           [error.field!]: error.detail!,
         }));
@@ -109,7 +113,7 @@ export default function TaskModal({
         onClick={onClose}
       >
         <motion.div
-          key="modal"
+          key="edit-modal"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
@@ -120,7 +124,7 @@ export default function TaskModal({
           <div className="p-6 space-y-4">
             <div className="flex justify-between items-center text-sm font-medium">
               <h2 className="text-xl font-bold text-black relative inline-block">
-                Add New Task
+                Edit Task
                 <span className="absolute left-0 bottom-0 w-2/3 border-b-2 border-blue-600"></span>
               </h2>
 
@@ -191,6 +195,18 @@ export default function TaskModal({
                 <p className="text-red-600 text-xs">{errors.description}</p>
               )}
             </div>
+
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={isCompleted}
+                onChange={() => setIsCompleted((prev) => !prev)}
+                className="h-4 w-4 rounded border-gray-400 text-blue-600 cursor-pointer"
+              />
+              <span className="text-gray-700 text-sm font-medium">
+                Completed
+              </span>
+            </div>
           </div>
 
           <div className="p-6 bg-gray-50 flex justify-between items-center">
@@ -198,7 +214,7 @@ export default function TaskModal({
               onClick={handleSave}
               className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg shadow hover:bg-blue-700 cursor-pointer"
             >
-              Done
+              Save
             </button>
 
             <button
