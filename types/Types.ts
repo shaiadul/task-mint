@@ -110,7 +110,41 @@ export interface UserProfile {
   last_name: string;
   address: string;
   contact_number: string;
-  birthday: string | null ;
+  birthday: string | null;
   profile_image: string | null | File;
   bio?: string;
+}
+
+export type Priority = "extreme" | "moderate" | "low";
+
+export interface Task {
+  id: number ;
+  title: string;
+  description: string;
+  priority: Priority;
+  is_completed: boolean;
+  position?: number;
+  dueDate?: string;
+}
+
+export interface FetchTasksResponse {
+  results: Task[];
+}
+
+export interface TaskModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onTaskCreated?: () => void;
+}
+export interface TaskErrors {
+  title?: string;
+  dueDate?: string;
+  description?: string;
+}
+
+export interface TaskCardProps {
+  task: Task;
+  onDelete: (id: number | string) => void;
+  handleDragStart: (e: React.DragEvent<HTMLDivElement>, id: string) => void;
+  handleDragOver: (e: React.DragEvent<HTMLDivElement>, id: string) => void;
 }

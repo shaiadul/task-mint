@@ -7,6 +7,7 @@ import { AccountValues, UserProfile } from "@/types/Types";
 import ProtectedRoute from "@/lib/ProtectedRoute";
 import { request } from "@/lib/api";
 import { HiMenu, HiX } from "react-icons/hi";
+import Tasks from "@/components/dashboard/Tasks";
 
 export default function DashboardPage() {
   const [values, setValues] = useState<UserProfile>({
@@ -77,21 +78,18 @@ export default function DashboardPage() {
           isSidebarOpen={isSidebarOpen}
           values={values}
         >
-          {activeMenu === "account" ? (
+          {activeMenu === "account" && (
             <div className="bg-white rounded-xl shadow-2xl transition-all duration-500 ease-in-out">
               <AccountInformationForm
                 values={values}
                 handleChange={handleChange}
               />
             </div>
-          ) : (
-            <div className="bg-white p-8 rounded-xl shadow-2xl transition-all duration-500 ease-in-out">
-              <h3 className="text-xl font-semibold capitalize">
-                {activeMenu} Page Content
-              </h3>
-              <p className="text-gray-500 mt-2">
-                This area would display content for the {activeMenu} section.
-              </p>
+          )}
+
+          {activeMenu === "todos" && (
+            <div className="transition-all duration-500 ease-in-out">
+              <Tasks />
             </div>
           )}
         </DashboardLayout>
