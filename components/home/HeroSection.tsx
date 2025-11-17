@@ -21,13 +21,13 @@ export default function HeroSection() {
           </p>
           <div className="flex gap-4">
             <Link
-              href="/register"
+              href="/signup"
               className="bg-white text-blue-600 font-semibold px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-500 cursor-pointer"
             >
               Get Started
             </Link>
             <Link href="/dashboard" className="border border-white px-6 py-3 rounded-lg hover:bg-white hover:text-blue-600 transition-all duration-500 cursor-pointer">
-              Learn More
+              Explore More
             </Link>
           </div>
         </motion.div>

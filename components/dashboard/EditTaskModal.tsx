@@ -86,9 +86,11 @@ export default function EditTaskModal({
           [error.field!]: error.detail!,
         }));
       } else {
-        alert(error.detail || "Something went wrong.");
+        console.log(error.detail || "Something went wrong.");
       }
     } finally {
+      onTaskCreated?.();
+      onClose();
       dispatch(stopLoading());
     }
   };

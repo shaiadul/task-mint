@@ -85,7 +85,7 @@ export default function AccountInformationForm({
       });
 
       console.log("Profile updated:", data);
-      alert("Profile updated successfully!");
+      dispatch(stopLoading());
     } catch (err) {
       const error = err as ApiError;
       if (error.field)
