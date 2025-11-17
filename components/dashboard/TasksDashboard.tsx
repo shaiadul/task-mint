@@ -51,8 +51,15 @@ export default function TasksDashboard() {
     startTransition(() => fetchTasks());
   }, []);
 
-  // Loading UI
   if (loading) {
+    return (
+      <div className="p-10 text-center text-gray-600 text-xl animate-pulse">
+        Loading dashboard...
+      </div>
+    );
+  }
+
+  if (tasks.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center bg-white h-full px-16 py-28">
         <Image
@@ -66,16 +73,6 @@ export default function TasksDashboard() {
     );
   }
 
-  // If no tasks
-  if (tasks.length === 0) {
-    return (
-      <div className="p-10 text-center text-gray-500 text-xl">
-        No tasks found
-      </div>
-    );
-  }
-
-  // --- Dashboard Data ---
   const total = tasks.length;
   const completed = tasks.filter((t) => t.is_completed).length;
   const pending = total - completed;
