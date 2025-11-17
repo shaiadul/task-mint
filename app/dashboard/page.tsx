@@ -8,6 +8,7 @@ import ProtectedRoute from "@/lib/ProtectedRoute";
 import { request } from "@/lib/api";
 import { HiMenu, HiX } from "react-icons/hi";
 import Tasks from "@/components/dashboard/Tasks";
+import TasksDashboard from "@/components/dashboard/TasksDashboard";
 
 export default function DashboardPage() {
   const [values, setValues] = useState<UserProfile>({
@@ -90,6 +91,12 @@ export default function DashboardPage() {
           {activeMenu === "todos" && (
             <div className="transition-all duration-500 ease-in-out">
               <Tasks />
+            </div>
+          )}
+
+          {activeMenu === "dashboard" && (
+            <div className="transition-all duration-500 ease-in-out">
+              <TasksDashboard />
             </div>
           )}
         </DashboardLayout>
