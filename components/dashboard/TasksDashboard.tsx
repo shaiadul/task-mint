@@ -15,6 +15,7 @@ import {
   Pie,
   Cell,
 } from "recharts";
+import Image from "next/image";
 
 export default function TasksDashboard() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -53,8 +54,14 @@ export default function TasksDashboard() {
   // Loading UI
   if (loading) {
     return (
-      <div className="p-10 text-center text-gray-600 text-xl animate-pulse">
-        Loading dashboard...
+      <div className="flex flex-col items-center justify-center bg-white h-full px-16 py-28">
+        <Image
+          src="/images/global/emptylist.svg"
+          width={200}
+          height={200}
+          alt="Empty state"
+        />
+        <p className="text-xl text-gray-500 mt-6">No todos yet</p>
       </div>
     );
   }
@@ -86,7 +93,7 @@ export default function TasksDashboard() {
   const COLORS = ["#4ade80", "#f87171"];
 
   return (
-    <div className="p-6 space-y-10">
+    <div className="space-y-10">
       <h2 className="text-3xl font-bold text-black relative inline-block">
         Tasks Dashboard
         <span className="absolute left-0 bottom-0 w-2/3 border-b-2 border-blue-600"></span>
