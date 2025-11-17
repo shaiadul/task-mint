@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo, useEffect, startTransition } from "react";
+import React, { useEffect, useMemo, useState, startTransition } from "react";
 import TaskModal from "./TaskModal";
 import { FetchTasksResponse, Task } from "@/types/Types";
 import TaskCard from "./TaskCard";
@@ -28,16 +28,18 @@ const Tasks: React.FC = () => {
         method: "GET",
       });
 
-      const formatted: Task[] = res.results.map((item) => ({
+      const formatted: Task[] = res.results.map((item, idx) => ({
         id: item.id,
         title: item.title,
         description: item.description,
         priority: item.priority,
         is_completed: item.is_completed,
-        order: item.position,
+        // backend uses `position` (ensure fallback to index if missing)
+        position: typeof item.position !== "undefined" ? item.position : idx,
         todo_date: item.todo_date,
       }));
 
+      formatted.sort((a, b) => Number(a.position) - Number(b.position));
       setTasks(formatted);
     } catch (err) {
       console.log("Failed to fetch tasks", err);
@@ -50,29 +52,12 @@ const Tasks: React.FC = () => {
     });
   }, []);
 
-  const updateTasksOrder = async (newTasks: Task[]) => {
-    try {
-      for (let index = 0; index < newTasks.length; index++) {
-        const task = newTasks[index];
-        await request({
-          endpoint: `/todos/${task.id}/`,
-          method: "PATCH",
-          data: { position: index },
-        });
-      }
-      console.log("Task positions updated successfully");
-    } catch (err) {
-      console.error("Failed to update task order", err);
-    }
-  };
-
   const handleDragStart = (
     e: React.DragEvent<HTMLDivElement>,
     id: number | string
   ) => {
     setDraggedId(String(id));
     e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/plain", String(id));
   };
 
   const handleDragOver = (
@@ -80,47 +65,55 @@ const Tasks: React.FC = () => {
     targetId: number | string
   ) => {
     e.preventDefault();
+    if (!draggedId) return;
+
     const draggedIndex = tasks.findIndex((t) => String(t.id) === draggedId);
     const targetIndex = tasks.findIndex(
       (t) => String(t.id) === String(targetId)
     );
 
-    if (
-      draggedIndex === -1 ||
-      targetIndex === -1 ||
-      draggedIndex === targetIndex
-    )
-      return;
+    if (draggedIndex === -1 || targetIndex === -1) return;
+    if (draggedIndex === targetIndex) return;
 
-    const newTasks = Array.from(tasks);
-    const [movedTask] = newTasks.splice(draggedIndex, 1);
-    newTasks.splice(targetIndex, 0, movedTask);
+    const updated = [...tasks];
+    const [draggedTask] = updated.splice(draggedIndex, 1);
+    updated.splice(targetIndex, 0, draggedTask);
 
-    setTasks(newTasks);
-    setDraggedId(String(newTasks[targetIndex].id));
+    updated.forEach((task, i) => (task.position = i + 1));
+
+    setTasks(updated);
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
+  const handleDrop = async () => {
+    if (!draggedId) return;
     setDraggedId(null);
 
-    updateTasksOrder(tasks);
+    const draggedTask = tasks.find((t) => String(t.id) === draggedId);
+    if (!draggedTask) return;
+
+    try {
+      await request({
+        endpoint: `/todos/${draggedTask.id}/`,
+        method: "PATCH",
+        data: { position: draggedTask.position },
+      });
+    } catch (err) {
+      console.log("Position update failed", err);
+      fetchTasks();
+    }
   };
 
   const deleteTask = async (taskId: number | string) => {
     try {
-      setTasks((prev) => prev.filter((task) => task.id !== taskId));
+      setTasks((prev) => prev.filter((t) => String(t.id) !== String(taskId)));
 
       await request({
         endpoint: `/todos/${taskId}/`,
         method: "DELETE",
       });
-
-      console.log(`Task ${taskId} deleted successfully`);
     } catch (err) {
-      console.error(`Failed to delete task ${taskId}`, err);
-
-      fetchTasks();
+      console.error("Failed to delete task", err);
+      await fetchTasks();
     }
   };
 
@@ -136,9 +129,10 @@ const Tasks: React.FC = () => {
           ? true
           : selectedDeadlines.some((option) => {
               if (!task.todo_date) return false;
-
               const now = new Date();
               const due = new Date(task.todo_date);
+              const diffDays =
+                (due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
 
               switch (option) {
                 case "Deadline Today":
@@ -148,19 +142,11 @@ const Tasks: React.FC = () => {
                     due.getDate() === now.getDate()
                   );
                 case "Expires in 5 days":
-                  return (
-                    (due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) <= 5
-                  );
+                  return diffDays >= 0 && diffDays <= 5;
                 case "Expires in 10 days":
-                  return (
-                    (due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) <=
-                    10
-                  );
+                  return diffDays >= 0 && diffDays <= 10;
                 case "Expires in 30 days":
-                  return (
-                    (due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) <=
-                    30
-                  );
+                  return diffDays >= 0 && diffDays <= 30;
                 default:
                   return true;
               }
@@ -201,13 +187,17 @@ const Tasks: React.FC = () => {
       );
     }
 
+    const sorted = [...filteredTasks].sort(
+      (a, b) => Number(a.position) - Number(b.position)
+    );
+
     return (
       <div
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-5"
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
       >
-        {filteredTasks.map((task) => (
+        {sorted.map((task) => (
           <TaskCard
             key={task.id}
             task={task}
