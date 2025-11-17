@@ -1,8 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 export default function CTASection() {
+  const router = useRouter();
   return (
     <section className="py-20 bg-blue-600 text-white text-center">
       <motion.h2
@@ -16,6 +18,7 @@ export default function CTASection() {
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
+        onClick={() => router.push("/register")}
         className="bg-white text-blue-600 font-semibold px-8 py-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
       >
         Start Your Free Trial

@@ -22,7 +22,7 @@ export default function DashboardPage() {
     profile_image: null,
   });
 
-  const [activeMenu, setActiveMenu] = useState<string>("account");
+  const [activeMenu, setActiveMenu] = useState<string>("dashboard");
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
 
   useEffect(() => {
